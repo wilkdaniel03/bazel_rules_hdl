@@ -1,0 +1,3 @@
+# Waiver file
+waive_violation -app lint -add waiver1 -filter { Tag==STARC05-2.10.1.4a } -comment {Waiving for test purposes}
+waive_violation -app lint -add waiver2 -filter { Tag==STARC05-2.10.1.4b } -comment {Waiving for test purposes}

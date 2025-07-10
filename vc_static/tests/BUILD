@@ -27,9 +27,19 @@ verilog_library(
     ],
 )
 
+filegroup(
+    name = "test_waiver",
+    srcs = [
+        "test_waiver.policy",
+    ],
+)
+
 vc_static_lint(
     name = "rtl_vc_static_lint",
     module = ":rtl",
     module_top = "rtl",
     vc_static_env = "//vc_static/tests:vc_static_env.sh",
+    waiver_files = [
+        ":test_waiver",
+    ],
 )

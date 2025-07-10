@@ -53,10 +53,12 @@ def _vc_static_lint(ctx):
     outputs = [log_file, report_file]
 
     tcl_variables = {
+        "enable_liberty": ctx.attr.enable_liberty,
         "include_dirs": depset([f.dirname for f in (all_srcs + all_hdrs)]).to_list(),
         "report_file": report_file.path,
         "sources": [f.path for f in all_srcs],
         "top_module": ctx.attr.module_top,
+        "waiver_files": [f.path for f in ctx.files.waiver_files],
     }
 
     # Write the TCL script
@@ -85,7 +87,7 @@ def _vc_static_lint(ctx):
 
     ctx.actions.run_shell(
         outputs = outputs,
-        inputs = [ctx.file.vc_static_env, tcl_script] + all_hdrs + all_srcs,
+        inputs = [ctx.file.vc_static_env, tcl_script] + ctx.files.waiver_files + all_hdrs + all_srcs,
         progress_message = "Running VC Static: {}".format(ctx.label.name),
         command = " ".join(vc_command),
     )
@@ -103,6 +105,10 @@ def _vc_static_lint(ctx):
 vc_static_lint = rule(
     implementation = _vc_static_lint,
     attrs = {
+        "enable_liberty": attr.bool(
+            doc = "Enable liberty database load",
+            default = False,
+        ),
         "module": attr.label(
             doc = "The top level module target to lint.",
             providers = [VerilogInfo],
@@ -131,6 +137,10 @@ vc_static_lint = rule(
                   "point to license server",
             mandatory = True,
             allow_single_file = [".sh"],
+        ),
+        "waiver_files": attr.label_list(
+            doc = "Waiver files",
+            allow_files = True,
         ),
     },
     provides = [

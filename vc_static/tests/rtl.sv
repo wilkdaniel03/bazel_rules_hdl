@@ -13,8 +13,14 @@
 // limitations under the License.
 
 module rtl (
-  input logic a,
-  output logic out
+    input  logic a,
+    output logic out
 );
-  assign out = ~a;
+
+  logic _int;
+  // Comparing with 'x' is considered a violation in the default config
+  assign _int = (a == 1'bx);
+
+  assign out  = ~a;
+
 endmodule
