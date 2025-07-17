@@ -33,7 +33,7 @@ module tb();
                 clk = 1'b1;
             #1  clk = 1'b0;
                 $display("count: ", cnt);
-                assert(cnt == (16'hA5B6 + 16'(i)));
+                assert(cnt == (16'hA5B6 + 16'(i+1)));
         end
 
         #10
