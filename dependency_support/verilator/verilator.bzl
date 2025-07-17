@@ -22,7 +22,7 @@ def verilator():
         http_archive,
         name = "verilator",
         build_file = Label("@rules_hdl//dependency_support/verilator:verilator.BUILD.bazel"),
-        urls = ["https://github.com/verilator/verilator/archive/v5.036.tar.gz"],
-        sha256 = "4199964882d56cf6a19ce80c6a297ebe3b0c35ea81106cd4f722342594337c47",
-        strip_prefix = "verilator-5.036",
+        urls = ["https://github.com/verilator/verilator/archive/v5.038.tar.gz"],
+        sha256 = "f8c03105224fa034095ba6c8a06443f61f6f59e1d72f76b718f89060e905a0d4",
+        strip_prefix = "verilator-5.038",
     )
