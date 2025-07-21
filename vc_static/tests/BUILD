@@ -34,6 +34,13 @@ filegroup(
     ],
 )
 
+filegroup(
+    name = "test_config",
+    srcs = [
+        "test_config.tcl",
+    ],
+)
+
 vc_static_lint(
     name = "rtl_vc_static_lint",
     module = ":rtl",
@@ -41,5 +48,8 @@ vc_static_lint(
     vc_static_env = "//vc_static/tests:vc_static_env.sh",
     waiver_files = [
         ":test_waiver",
+    ],
+    config_files = [
+        ":test_config",
     ],
 )

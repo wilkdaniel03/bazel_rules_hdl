@@ -59,6 +59,7 @@ def _vc_static_lint(ctx):
         "sources": [f.path for f in all_srcs],
         "top_module": ctx.attr.module_top,
         "waiver_files": [f.path for f in ctx.files.waiver_files],
+        "config_files": [f.path for f in ctx.files.config_files],
     }
 
     # Write the TCL script
@@ -87,7 +88,7 @@ def _vc_static_lint(ctx):
 
     ctx.actions.run_shell(
         outputs = outputs,
-        inputs = [ctx.file.vc_static_env, tcl_script] + ctx.files.waiver_files + all_hdrs + all_srcs,
+        inputs = [ctx.file.vc_static_env, tcl_script] + ctx.files.waiver_files + ctx.files.config_files + all_hdrs + all_srcs,
         progress_message = "Running VC Static: {}".format(ctx.label.name),
         command = " ".join(vc_command),
     )
@@ -140,6 +141,10 @@ vc_static_lint = rule(
         ),
         "waiver_files": attr.label_list(
             doc = "Waiver files",
+            allow_files = True,
+        ),
+        "config_files": attr.label_list(
+            doc = "Config files",
             allow_files = True,
         ),
     },

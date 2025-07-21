@@ -14,6 +14,7 @@
 
 module rtl (
     input  logic a,
+    input  logic b,
     output logic out
 );
 
