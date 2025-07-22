@@ -1,6 +1,4 @@
-include:
-  - project: bazel_rules_hdl-ci-scripts
-    file: bazel_rules_hdl.yml
+include: bazel_rules_hdl-ci-scripts@main:bazel_rules_hdl.yml
 
 stages:
   - prepare

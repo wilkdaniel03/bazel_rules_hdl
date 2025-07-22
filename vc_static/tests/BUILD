@@ -43,13 +43,14 @@ filegroup(
 
 vc_static_lint(
     name = "rtl_vc_static_lint",
+    config_files = [
+        ":test_config",
+    ],
+    goal_name = "test_goal",
     module = ":rtl",
     module_top = "rtl",
     vc_static_env = "//vc_static/tests:vc_static_env.sh",
     waiver_files = [
         ":test_waiver",
-    ],
-    config_files = [
-        ":test_config",
     ],
 )

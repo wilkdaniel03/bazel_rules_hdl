@@ -53,13 +53,14 @@ def _vc_static_lint(ctx):
     outputs = [log_file, report_file]
 
     tcl_variables = {
+        "config_files": [f.path for f in ctx.files.config_files],
         "enable_liberty": ctx.attr.enable_liberty,
+        "goal_name": ctx.attr.goal_name,
         "include_dirs": depset([f.dirname for f in (all_srcs + all_hdrs)]).to_list(),
         "report_file": report_file.path,
         "sources": [f.path for f in all_srcs],
         "top_module": ctx.attr.module_top,
         "waiver_files": [f.path for f in ctx.files.waiver_files],
-        "config_files": [f.path for f in ctx.files.config_files],
     }
 
     # Write the TCL script
@@ -106,9 +107,17 @@ def _vc_static_lint(ctx):
 vc_static_lint = rule(
     implementation = _vc_static_lint,
     attrs = {
+        "config_files": attr.label_list(
+            doc = "Config files",
+            allow_files = True,
+        ),
         "enable_liberty": attr.bool(
             doc = "Enable liberty database load",
             default = False,
+        ),
+        "goal_name": attr.string(
+            doc = "Lint goal name",
+            default = "lint_rtl",
         ),
         "module": attr.label(
             doc = "The top level module target to lint.",
@@ -141,10 +150,6 @@ vc_static_lint = rule(
         ),
         "waiver_files": attr.label_list(
             doc = "Waiver files",
-            allow_files = True,
-        ),
-        "config_files": attr.label_list(
-            doc = "Config files",
             allow_files = True,
         ),
     },

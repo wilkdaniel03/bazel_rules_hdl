@@ -30,13 +30,14 @@ if {$enable_liberty} {
 # Configure VC Static
 set_app_var enable_lint true
 set_app_var report_all_hdl_errors true
-configure_lint_setup -goal lint_rtl
 
 # Include lint config files
 set config_list [split $config_files " "]
 foreach config $config_list {
     source $config
 }
+
+configure_lint_setup -goal $goal_name
 
 # Include waiver file
 set waiver_list [split $waiver_files " "]
