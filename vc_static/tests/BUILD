@@ -46,13 +46,14 @@ vc_static_lint(
     config_files = [
         ":test_config",
     ],
-    goal_name = "test_goal",
+    # buildifier: disable=unsorted-dict-items
     custom_severities = {
         "fatal": ["fatal"],
         "error": ["error"],
         "warning": ["warning"],
         "info": ["Info-Test"],
     },
+    goal_name = "test_goal",
     module = ":rtl",
     module_top = "rtl",
     vc_static_env = "//vc_static/tests:vc_static_env.sh",

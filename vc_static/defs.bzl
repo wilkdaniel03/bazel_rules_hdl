@@ -130,6 +130,7 @@ vc_static_lint = rule(
         ),
         "custom_severities": attr.string_list_dict(
             doc = "Dictionary of severities (keys) and the overriding names (values)",
+            # buildifier: disable=unsorted-dict-items
             default = {
                 "fatal": ["fatal"],
                 "error": ["error"],
