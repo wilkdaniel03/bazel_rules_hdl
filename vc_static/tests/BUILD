@@ -47,6 +47,12 @@ vc_static_lint(
         ":test_config",
     ],
     goal_name = "test_goal",
+    custom_severities = {
+        "fatal": ["fatal"],
+        "error": ["error"],
+        "warning": ["warning"],
+        "info": ["Info-Test"],
+    },
     module = ":rtl",
     module_top = "rtl",
     vc_static_env = "//vc_static/tests:vc_static_env.sh",

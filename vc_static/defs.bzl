@@ -29,12 +29,28 @@ def _value_to_tcl(value):
 def _dict_to_tcl(dictionary):
     tcl = []
     for name, value in dictionary.items():
-        definition = ["set", name]
-        if type(value) == "list":
-            definition.extend([_value_to_tcl(" ".join(value))])
+        if name == "custom_severities":
+            failing_severities_def = ["set", "failing_severities", "[split"]
+            all_severities_def = ["set", "all_severities", "[split"]
+            close_tcl_list = "\".\"]"
+            failing_severities = []
+            all_severities = []
+            for k, v in value.items():
+                severities = [" ".join(v)]
+                if k != "info":
+                    failing_severities.extend(severities)
+                all_severities.extend(severities)
+            failing_severities_def.extend([".".join(failing_severities), close_tcl_list])
+            all_severities_def.extend([".".join(all_severities), close_tcl_list])
+            tcl.append(" ".join(all_severities_def))
+            tcl.append(" ".join(failing_severities_def))
         else:
-            definition.append(_value_to_tcl(value))
-        tcl.append(" ".join(definition))
+            definition = ["set", name]
+            if type(value) == "list":
+                definition.extend([_value_to_tcl(" ".join(value))])
+            else:
+                definition.append(_value_to_tcl(value))
+            tcl.append(" ".join(definition))
 
     return "\n".join(tcl)
 
@@ -54,6 +70,7 @@ def _vc_static_lint(ctx):
 
     tcl_variables = {
         "config_files": [f.path for f in ctx.files.config_files],
+        "custom_severities": ctx.attr.custom_severities,
         "enable_liberty": ctx.attr.enable_liberty,
         "goal_name": ctx.attr.goal_name,
         "include_dirs": depset([f.dirname for f in (all_srcs + all_hdrs)]).to_list(),
@@ -110,6 +127,15 @@ vc_static_lint = rule(
         "config_files": attr.label_list(
             doc = "Config files",
             allow_files = True,
+        ),
+        "custom_severities": attr.string_list_dict(
+            doc = "Dictionary of severities (keys) and the overriding names (values)",
+            default = {
+                "fatal": ["fatal"],
+                "error": ["error"],
+                "warning": ["warning"],
+                "info": ["info"],
+            },
         ),
         "enable_liberty": attr.bool(
             doc = "Enable liberty database load",
