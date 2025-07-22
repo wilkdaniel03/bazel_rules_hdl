@@ -36,7 +36,7 @@ def _dict_to_tcl(dictionary):
             failing_severities = []
             all_severities = []
             for k, v in value.items():
-                severities = [" ".join(v)]
+                severities = [".".join(v)]
                 if k != "info":
                     failing_severities.extend(severities)
                 all_severities.extend(severities)
