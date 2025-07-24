@@ -45,7 +45,7 @@ foreach waiver $waiver_list {
 }
 
 # Check the design
-analyze -format sverilog -vcs "$sources -sverilog"
+analyze -format sverilog -vcs "$sources -sverilog $vcs_opts"
 elaborate $top_module
 check_lint
 

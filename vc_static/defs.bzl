@@ -77,6 +77,7 @@ def _vc_static_lint(ctx):
         "report_file": report_file.path,
         "sources": [f.path for f in all_srcs],
         "top_module": ctx.attr.module_top,
+        "vcs_opts": ctx.attr.vcs_opts,
         "waiver_files": [f.path for f in ctx.files.waiver_files],
     }
 
@@ -174,6 +175,9 @@ vc_static_lint = rule(
                   "point to license server",
             mandatory = True,
             allow_single_file = [".sh"],
+        ),
+        "vcs_opts": attr.string(
+            doc = "Additional option to pass to vc-static 'analyze -vcs' command.",
         ),
         "waiver_files": attr.label_list(
             doc = "Waiver files",
