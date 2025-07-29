@@ -29,28 +29,12 @@ def _value_to_tcl(value):
 def _dict_to_tcl(dictionary):
     tcl = []
     for name, value in dictionary.items():
-        if name == "custom_severities":
-            failing_severities_def = ["set", "failing_severities", "[split"]
-            all_severities_def = ["set", "all_severities", "[split"]
-            close_tcl_list = "\".\"]"
-            failing_severities = []
-            all_severities = []
-            for k, v in value.items():
-                severities = [".".join(v)]
-                if k != "info":
-                    failing_severities.extend(severities)
-                all_severities.extend(severities)
-            failing_severities_def.extend([".".join(failing_severities), close_tcl_list])
-            all_severities_def.extend([".".join(all_severities), close_tcl_list])
-            tcl.append(" ".join(all_severities_def))
-            tcl.append(" ".join(failing_severities_def))
+        definition = ["set", name]
+        if type(value) == "list":
+            definition.extend([_value_to_tcl(" ".join(value))])
         else:
-            definition = ["set", name]
-            if type(value) == "list":
-                definition.extend([_value_to_tcl(" ".join(value))])
-            else:
-                definition.append(_value_to_tcl(value))
-            tcl.append(" ".join(definition))
+            definition.append(_value_to_tcl(value))
+        tcl.append(" ".join(definition))
 
     return "\n".join(tcl)
 
@@ -69,9 +53,10 @@ def _vc_static_lint(ctx):
     outputs = [log_file, report_file]
 
     tcl_variables = {
+        "all_severities": ctx.attr.severities,
         "config_files": [f.path for f in ctx.files.config_files],
-        "custom_severities": ctx.attr.custom_severities,
         "enable_liberty": ctx.attr.enable_liberty,
+        "failing_severities": ctx.attr.failing_severities,
         "goal_name": ctx.attr.goal_name,
         "include_dirs": depset([f.dirname for f in (all_srcs + all_hdrs)]).to_list(),
         "report_file": report_file.path,
@@ -129,19 +114,13 @@ vc_static_lint = rule(
             doc = "Config files",
             allow_files = True,
         ),
-        "custom_severities": attr.string_list_dict(
-            doc = "Dictionary of severities (keys) and the overriding names (values)",
-            # buildifier: disable=unsorted-dict-items
-            default = {
-                "fatal": ["fatal"],
-                "error": ["error"],
-                "warning": ["warning"],
-                "info": ["info"],
-            },
-        ),
         "enable_liberty": attr.bool(
             doc = "Enable liberty database load",
             default = False,
+        ),
+        "failing_severities": attr.string_list(
+            doc = "List of lint severity names to fail on",
+            default = ["fatal", "error", "warning"],
         ),
         "goal_name": attr.string(
             doc = "Lint goal name",
@@ -164,6 +143,10 @@ vc_static_lint = rule(
                 "-lic_wait",
                 "1140",
             ],
+        ),
+        "severities": attr.string_list(
+            doc = "List of lint severity names to report",
+            default = ["fatal", "error", "warning", "info"],
         ),
         "tcl_script": attr.label(
             doc = "A TCL script run by VC Static",
