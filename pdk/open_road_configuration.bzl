@@ -117,8 +117,7 @@ open_road_pdk_configuration = rule(
             mandatory = True,
             doc = "This value can be an empty list if all cells should be used in P&R",
         ),
-        "endcap_cell": attr.string(
-        ),
+        "endcap_cell": attr.string(),
         "fill_cells": attr.string_list(
             mandatory = True,
         ),
@@ -160,10 +159,8 @@ open_road_pdk_configuration = rule(
         "rc_script_configuration": attr.label(
             allow_single_file = True,
         ),
-        "tap_cell": attr.string(
-        ),
-        "tapcell_distance": attr.int(
-        ),
+        "tap_cell": attr.string(),
+        "tapcell_distance": attr.int(),
         "tapcell_tcl": attr.label(
             allow_single_file = True,
             doc = "TCL file that sets tapcell options. This overrides other tapcell attributes in this rule.",

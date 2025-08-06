@@ -443,3 +443,31 @@ Example:
     attrs = benchmark_synth_attrs,
     executable = True,
 )
+
+SdcInfo = provider(
+    doc = "sdc",
+    fields = {
+        "sdc": "Path to the SDC file",
+    },
+)
+
+def _sdc_library_impl(ctx):
+    return [
+        DefaultInfo(
+            files = depset(transitive = [t.files for t in ctx.attr.srcs]),
+        ),
+        SdcInfo(
+            sdc = ctx.attr.srcs[0],
+        ),
+    ]
+
+sdc_library = rule(
+    doc = "Define an SDC library.",
+    implementation = _sdc_library_impl,
+    attrs = {
+        "srcs": attr.label_list(
+            doc = "SDC sources.",
+            allow_files = [".sdc"],
+        ),
+    },
+)
