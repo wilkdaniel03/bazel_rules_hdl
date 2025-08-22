@@ -143,6 +143,7 @@ def _vcs_binary(ctx):
     command += " -top " + ctx.attr.module_top
     command += " -debug_access -debug_region=cell+encrypt +v2k"
     command += " +vcs+vcdpluson"
+    command += " -kdb"
 
     for opt in ctx.attr.opts:
         command += " " + opt
@@ -319,10 +320,19 @@ def _vcs_run(ctx):
         args.append("+vcs+dumpon+0+0")
         args.append("+vcs+dumparrays")
 
-    outputs += trace_vcd + trace_vpd
+    trace_fsdb = []
+    if ctx.attr.trace_fsdb:
+        file = ctx.actions.declare_file("{}.fsdb".format(ctx.label.name))
+        trace_fsdb.append(file)
+        args.append("+fsdb=" + file.path)
+        args.append("+vcs+dumparrays")
+        args.append("-error=noTLVRZ")
+
+    outputs += trace_vcd + trace_vpd + trace_fsdb
     result.append(WaveformInfo(
         vpd_files = depset(trace_vpd),
         vcd_files = depset(trace_vcd),
+        fsdb_files = depset(trace_fsdb),
     ))
 
     # Binary runfiles
@@ -429,6 +439,10 @@ vcs_run = rule(
         "run_env": attr.label(
             doc = "A shell script to source to set up run environment",
             allow_single_file = [".sh"],
+        ),
+        "trace_fsdb": attr.bool(
+            doc = "Enable trace output in FSDB format",
+            default = False,
         ),
         "trace_vcd": attr.bool(
             doc = "Enable trace output in VCD format",

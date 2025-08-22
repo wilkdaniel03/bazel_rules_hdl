@@ -17,6 +17,7 @@
 WaveformInfo = provider(
     doc = "Waveform collected during a simulation run",
     fields = {
+        "fsdb_files": "FSDB waveform files",
         "vcd_files": "VCD waveform files",
         "vpd_files": "VPD waveform files",
     },
