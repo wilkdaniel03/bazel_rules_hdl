@@ -11,8 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+load(":defs.bzl", "vcs_seed_rule")
+
 
 package(
     default_applicable_licenses = ["//:package_license"],
     default_visibility = ["//visibility:private"],
+)
+
+vcs_seed_rule(
+    name = "vcs_seed",
+    build_setting_default = "random",
+    visibility = ["//visibility:public"],
 )

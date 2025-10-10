@@ -20,6 +20,8 @@ load("//verilog:defs.bzl", "VerilogInfo")
 _SV_SRC = ["sv", "svh"]
 _ALLOWED_COV_TYPES = ["line", "cond", "fsm", "tgl", "branch", "assert"]
 
+SeedProvider = provider(fields = ['seed'])
+
 CoverageInfo = provider(
     doc = "Coverage collected during a simulation run",
     fields = {
@@ -294,27 +296,37 @@ def _vcs_run(ctx):
     intermediate_outputs = []
     outputs = []
     result = []
-
-    # Capture log
-    run_log = ctx.actions.declare_file("{}.log".format(ctx.label.name))
-    args.extend(["-l", run_log.path])
-    outputs.append(run_log)
+    is_seeded = False
 
     # Target binary args
     for arg in ctx.attr.args:
         args.append(arg)
 
+    seed = ctx.attr.seed[SeedProvider].seed
+    if seed != "random":
+        args.append("+ntb_random_seed=" + seed)
+        run_log = ctx.actions.declare_file("{}_s{}.log".format(ctx.label.name, seed))
+        is_seeded = True
+    else:
+        run_log = ctx.actions.declare_file("{}.log".format(ctx.label.name))
+
     # Waveform
     trace_vpd = []
     if ctx.attr.trace_vpd:
-        file = ctx.actions.declare_file("{}.vpd".format(ctx.label.name))
+        if is_seeded:
+            file = ctx.actions.declare_file("{}_s{}.vpd".format(ctx.label.name, seed))
+        else:
+            file = ctx.actions.declare_file("{}.vpd".format(ctx.label.name))
         trace_vpd.append(file)
         args.append("+vpdfile+" + file.path)
         args.append("+dumpon")
 
     trace_vcd = []
     if ctx.attr.trace_vcd:
-        file = ctx.actions.declare_file("{}.vcd".format(ctx.label.name))
+        if is_seeded:
+            file = ctx.actions.declare_file("{}_s{}.vcd".format(ctx.label.name, seed))
+        else:
+            file = ctx.actions.declare_file("{}.vcd".format(ctx.label.name))
         trace_vcd.append(file)
         args.append("+vcd=" + file.path)
         args.append("+vcs+dumpon+0+0")
@@ -322,11 +334,17 @@ def _vcs_run(ctx):
 
     trace_fsdb = []
     if ctx.attr.trace_fsdb:
-        file = ctx.actions.declare_file("{}.fsdb".format(ctx.label.name))
+        if is_seeded:
+            file = ctx.actions.declare_file("{}_s{}.fsdb".format(ctx.label.name, seed))
+        else:
+            file = ctx.actions.declare_file("{}.fsdb".format(ctx.label.name))
         trace_fsdb.append(file)
         args.append("+fsdb=" + file.path)
         args.append("+vcs+dumparrays")
         args.append("-error=noTLVRZ")
+
+    args.extend(["-l", run_log.path])
+    outputs.append(run_log)
 
     outputs += trace_vcd + trace_vpd + trace_fsdb
     result.append(WaveformInfo(
@@ -452,11 +470,24 @@ vcs_run = rule(
             doc = "Enable trace output in VPD format",
             default = False,
         ),
+        "seed": attr.label(
+            default = ":vcs_seed",
+            providers = [SeedProvider],
+        )
     },
     provides = [
         DefaultInfo,
         LogInfo,
     ],
+)
+
+def _vcs_seed_impl(ctx):
+    seed = ctx.build_setting_value
+    return SeedProvider(seed = seed)
+
+vcs_seed_rule = rule(
+    implementation = _vcs_seed_impl,
+    build_setting = config.string(flag = True),
 )
 
 def _convert_vpd2vcd(ctx):
