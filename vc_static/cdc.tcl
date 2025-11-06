@@ -21,10 +21,17 @@ proc fail_violations {{severities "warning error fatal"}} {
     }
 }
 
+set_app_var enable_cdc true
+
+# Include additional config files
+set config_list [split $config_files " "]
+foreach config $config_list {
+    source $config
+}
+
 set search_path $include_dirs
 analyze -format sverilog -vcs "$sources -sverilog $vcs_opts"
 elaborate $top_module
-set_app_var enable_cdc true
 
 read_sdc $sdc_file
 
