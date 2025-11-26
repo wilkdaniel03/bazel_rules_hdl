@@ -134,7 +134,7 @@ verilog_library = rule(
         ),
         "hdrs": attr.label_list(
             doc = "Verilog or SystemVerilog headers.",
-            allow_files = [".vh", ".svh", ".v", ".sv"],
+            allow_files = [".vh", ".svh", ".svhp", ".v", ".vp", ".sv", ".svp"],
         ),
         "plis": attr.label_list(
             doc = "The list of PLI library dependencies",
