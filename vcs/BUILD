@@ -13,7 +13,6 @@
 # limitations under the License.
 load(":defs.bzl", "vcs_seed_rule")
 
-
 package(
     default_applicable_licenses = ["//:package_license"],
     default_visibility = ["//visibility:private"],

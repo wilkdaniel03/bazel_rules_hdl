@@ -20,7 +20,10 @@ load("//verilog:defs.bzl", "VerilogInfo")
 _SV_SRC = ["sv", "svh"]
 _ALLOWED_COV_TYPES = ["line", "cond", "fsm", "tgl", "branch", "assert"]
 
-SeedProvider = provider(fields = ['seed'])
+seed_provider = provider(
+    doc = "VCS seed provider",
+    fields = ["seed"],
+)
 
 CoverageInfo = provider(
     doc = "Coverage collected during a simulation run",
@@ -302,7 +305,7 @@ def _vcs_run(ctx):
     for arg in ctx.attr.args:
         args.append(arg)
 
-    seed = ctx.attr.seed[SeedProvider].seed
+    seed = ctx.attr.seed[seed_provider].seed
     if seed != "random":
         args.append("+ntb_random_seed=" + seed)
         run_log = ctx.actions.declare_file("{}_s{}.log".format(ctx.label.name, seed))
@@ -458,6 +461,10 @@ vcs_run = rule(
             doc = "A shell script to source to set up run environment",
             allow_single_file = [".sh"],
         ),
+        "seed": attr.label(
+            default = ":vcs_seed",
+            providers = [seed_provider],
+        ),
         "trace_fsdb": attr.bool(
             doc = "Enable trace output in FSDB format",
             default = False,
@@ -470,10 +477,6 @@ vcs_run = rule(
             doc = "Enable trace output in VPD format",
             default = False,
         ),
-        "seed": attr.label(
-            default = ":vcs_seed",
-            providers = [SeedProvider],
-        )
     },
     provides = [
         DefaultInfo,
@@ -483,7 +486,7 @@ vcs_run = rule(
 
 def _vcs_seed_impl(ctx):
     seed = ctx.build_setting_value
-    return SeedProvider(seed = seed)
+    return seed_provider(seed = seed)
 
 vcs_seed_rule = rule(
     implementation = _vcs_seed_impl,
