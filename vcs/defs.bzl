@@ -227,6 +227,9 @@ def _vcs_binary(ctx):
     command += " && rm -rf " + vcs_runfiles.path
     command += " && mv " + vcs_runfiles_tmp + " " + vcs_runfiles.path
 
+    # Ensure that the output binary is newer than .daidir to avoid reporting an error
+    command += " && touch " + vcs_out.path
+
     # Run VCS
     ctx.actions.run_shell(
         outputs = outputs,
