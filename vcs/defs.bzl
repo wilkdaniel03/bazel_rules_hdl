@@ -375,26 +375,30 @@ def _vcs_run(ctx):
 
     # Coverage
     produce_coverage = len(ctx.attr.coverage) > 0
-    fail_on_invalid_coverage_type(ctx.attr.coverage)
-    cov_info = ctx.attr.binary[CoverageInfo]
-    cov_dir = cov_info.cov_dir
-    exclusions_file = cov_info.exclusions_file
+    cov_dir = None
+    cov_dir_intermediate = None
+    exclusions_file = None
 
-    if not is_subset(cov_info.compiled_types, ctx.attr.coverage):
-        fail("Design was compiled with VCS with incompatible set of coverage types: " +
-             str(cov_info.compiled_types) + " is not a superset of coverage types passed for " +
-             "running the compiled binary: " + str(ctx.attr.coverage) + ". Add missing types to " +
-             "your vcs_binary rule.")
+    if (produce_coverage):
+        fail_on_invalid_coverage_type(ctx.attr.coverage)
+        cov_info = ctx.attr.binary[CoverageInfo]
+        cov_dir = cov_info.cov_dir
+        exclusions_file = cov_info.exclusions_file
 
-    cov_dir_intermediate = ctx.actions.declare_directory("{}_intermediate.vdb".format(ctx.label.name))
+        if not is_subset(cov_info.compiled_types, ctx.attr.coverage):
+            fail("Design was compiled with VCS with incompatible set of coverage types: " +
+                 str(cov_info.compiled_types) + " is not a superset of coverage types passed for " +
+                 "running the compiled binary: " + str(ctx.attr.coverage) + ". Add missing types to " +
+                 "your vcs_binary rule.")
 
-    # Input directory - contains 'auxiliary', 'design' and 'shape' subdirs
-    inputs.append(cov_dir)
+        cov_dir_intermediate = ctx.actions.declare_directory("{}_intermediate.vdb".format(ctx.label.name))
 
-    # Output directory - will contain only 'testdata' subdir
-    intermediate_outputs.append(cov_dir_intermediate)
+        # Input directory - contains 'auxiliary', 'design' and 'shape' subdirs
+        inputs.append(cov_dir)
 
-    if produce_coverage:
+        # Output directory - will contain only 'testdata' subdir
+        intermediate_outputs.append(cov_dir_intermediate)
+
         args += ["-cm", "+".join(ctx.attr.coverage)]
         args += ["-cm_dir", cov_dir_intermediate.path]
 
