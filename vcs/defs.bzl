@@ -391,7 +391,10 @@ def _vcs_run(ctx):
                  "running the compiled binary: " + str(ctx.attr.coverage) + ". Add missing types to " +
                  "your vcs_binary rule.")
 
-        cov_dir_intermediate = ctx.actions.declare_directory("{}_intermediate.vdb".format(ctx.label.name))
+        if is_seeded:
+            cov_dir_intermediate = ctx.actions.declare_directory("{}_intermediate_s{}.vdb".format(ctx.label.name, seed))
+        else:
+            cov_dir_intermediate = ctx.actions.declare_directory("{}_intermediate.vdb".format(ctx.label.name))
 
         # Input directory - contains 'auxiliary', 'design' and 'shape' subdirs
         inputs.append(cov_dir)
@@ -424,7 +427,10 @@ def _vcs_run(ctx):
     if produce_coverage:
         # Merge cov_dir and cov_dir_intermediate to produce a directory
         # that contains all subdirs: 'auxiliary', 'design', 'shape' and 'testdata'
-        cov_dir_final = ctx.actions.declare_directory("{}.vdb".format(ctx.label.name))
+        if is_seeded:
+            cov_dir_final = ctx.actions.declare_directory("{}_s{}.vdb".format(ctx.label.name, seed))
+        else:
+            cov_dir_final = ctx.actions.declare_directory("{}.vdb".format(ctx.label.name))
         ctx.actions.run_shell(
             inputs = [cov_dir, cov_dir_intermediate] + ([exclusions_file] if exclusions_file else []),
             outputs = [cov_dir_final],
