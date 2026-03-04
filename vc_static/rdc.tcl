@@ -29,6 +29,12 @@ foreach config $config_list {
     source $config
 }
 
+# Include waiver file
+set waiver_list [split $waiver_files " "]
+foreach waiver $waiver_list {
+    source $waiver
+}
+
 set search_path $include_dirs
 analyze -format sverilog -vcs "$sources -sverilog $vcs_opts"
 elaborate $top_module
