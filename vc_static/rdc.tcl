@@ -36,6 +36,13 @@ foreach waiver $waiver_list {
 }
 
 set search_path $include_dirs
+
+if {$enable_liberty} {
+    set link_library $link_library
+} else {
+    waive_violation -app setup -add global_waiver_1 -filter { Tag==COM_OPT010 } -comment {Search path is not needed in pure RTL lint}
+}
+
 analyze -format sverilog -vcs "$sources -sverilog $vcs_opts"
 elaborate $top_module
 
