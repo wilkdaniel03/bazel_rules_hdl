@@ -10,6 +10,9 @@ module tb ();
       $dumpfile(vcd_file);
       $dumpvars();
     end
+    if ($test$plusargs("vpdfile")) begin
+      $vcdpluson;
+    end
   end
 
   // DUT

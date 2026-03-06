@@ -147,7 +147,6 @@ def _vcs_binary(ctx):
     command += " -o " + vcs_out.path
     command += " -top " + ctx.attr.module_top
     command += " -debug_access -debug_region=cell+encrypt +v2k"
-    command += " +vcs+vcdpluson"
     command += " -kdb"
 
     for opt in ctx.attr.opts:
@@ -325,7 +324,7 @@ def _vcs_run(ctx):
             file = ctx.actions.declare_file("{}.vpd".format(ctx.label.name))
         trace_vpd.append(file)
         args.append("+vpdfile+" + file.path)
-        args.append("+dumpon")
+        args.append("+vcs+dumpon")
 
     trace_vcd = []
     if ctx.attr.trace_vcd:
