@@ -74,6 +74,7 @@ def _vc_static_lint(ctx):
         "failing_severities": ctx.attr.failing_severities,
         "goal_name": ctx.attr.goal_name,
         "include_dirs": depset([f.dirname for f in (all_srcs + all_hdrs)]).to_list(),
+        "pre_check_config_files": [f.path for f in ctx.files.pre_check_config_files],
         "report_file": report_file.path,
         "sources": [f.path for f in all_srcs],
         "top_module": ctx.attr.module_top,
@@ -83,6 +84,7 @@ def _vc_static_lint(ctx):
     inputs = [ctx.file.vc_static_env, tcl_script] + \
              ctx.files.waiver_files + \
              ctx.files.config_files + \
+             ctx.files.pre_check_config_files + \
              all_hdrs + \
              all_srcs
 
@@ -108,7 +110,6 @@ def _vc_static_lint(ctx):
         ctx.file.vc_static_env.path,
         "&&",
         "vc_static_shell",
-        "-no_ui",
         "-no_restore",
         "-batch",
         "-output_log_file",
@@ -138,7 +139,7 @@ vc_static_lint = rule(
     implementation = _vc_static_lint,
     attrs = {
         "cdc_script": attr.label(
-            doc = "A TCL script run by VC Static to check RDC compliance",
+            doc = "A TCL script run by VC Static to check CDC compliance",
             default = "//vc_static:cdc.tcl",
             allow_single_file = True,
         ),
@@ -175,6 +176,10 @@ vc_static_lint = rule(
                 "-lic_wait",
                 "1140",
             ],
+        ),
+        "pre_check_config_files": attr.label_list(
+            doc = "Config files applied after elaborate command and before check",
+            allow_files = True,
         ),
         "rdc_script": attr.label(
             doc = "A TCL script run by VC Static to check RDC compliance",

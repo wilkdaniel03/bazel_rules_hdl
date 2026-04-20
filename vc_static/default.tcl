@@ -53,5 +53,8 @@ check_lint
 report_violations -verbose -file $report_file -report {sg_moresimple}
 waive_violation -tcl -not_applied
 
+save_session -session lint_session -compression zstd
+
 print_violations_summary $all_severities
 fail_violations $failing_severities
+

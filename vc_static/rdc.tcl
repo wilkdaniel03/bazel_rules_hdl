@@ -26,13 +26,7 @@ set_app_var enable_rdc true
 # Include additional config files
 set config_list [split $config_files " "]
 foreach config $config_list {
-    source $config
-}
-
-# Include waiver file
-set waiver_list [split $waiver_files " "]
-foreach waiver $waiver_list {
-    source $waiver
+    source -e $config
 }
 
 set search_path $include_dirs
@@ -48,8 +42,23 @@ elaborate $top_module
 
 read_sdc $sdc_file
 
+# Include additional config files
+set config_list [split $pre_check_config_files " "]
+foreach config $config_list {
+    source -e $config
+}
+
+
 # Check RDC
 check_rdc
+
+# Include waiver file
+set waiver_list [split $waiver_files " "]
+foreach waiver $waiver_list {
+    source $waiver
+}
+
 report_rdc -verbose -file $report_file
 print_violations_summary $all_severities
+save_session -session rdc_session -compression zstd
 fail_violations $failing_severities

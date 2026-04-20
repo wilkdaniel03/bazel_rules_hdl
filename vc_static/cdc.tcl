@@ -22,6 +22,7 @@ proc fail_violations {{severities "warning error fatal"}} {
 }
 
 set_app_var enable_cdc true
+set_app_var enable_cdc_save true
 
 # Include additional config files
 set config_list [split $config_files " "]
@@ -30,13 +31,34 @@ foreach config $config_list {
 }
 
 set search_path $include_dirs
+
+if {$enable_liberty} {
+    set link_library $link_library
+} else {
+    waive_violation -app setup -add global_waiver_1 -filter { Tag==COM_OPT010 } -comment {Search path is not needed in pure RTL lint}
+}
+
 analyze -format sverilog -vcs "$sources -sverilog $vcs_opts"
 elaborate $top_module
 
 read_sdc $sdc_file
 
+# Include additional config files
+set config_list [split $pre_check_config_files " "]
+foreach config $config_list {
+    source -e $config
+}
+
 # Check CDC
 check_cdc
+
+# Include waiver file
+set waiver_list [split $waiver_files " "]
+foreach waiver $waiver_list {
+    source $waiver
+}
+
 report_cdc -verbose -file $report_file
 print_violations_summary $all_severities
+save_session -session cdc_session -compression zstd
 fail_violations $failing_severities
