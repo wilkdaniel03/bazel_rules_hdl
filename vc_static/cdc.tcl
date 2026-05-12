@@ -59,6 +59,6 @@ foreach waiver $waiver_list {
 }
 
 report_cdc -verbose -file $report_file
-print_violations_summary $all_severities
 save_session -session cdc_session -compression zstd
+print_violations_summary $all_severities
 fail_violations $failing_severities
