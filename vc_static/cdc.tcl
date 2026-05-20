@@ -21,6 +21,22 @@ proc fail_violations {{severities "warning error fatal"}} {
     }
 }
 
+## Determine the number of CPU cores to use for dispatched jobs
+## Place an upper limit at 16 to avoid using too many licences at once
+proc get_dispatch_value {} {
+    set cores 1
+    if {![catch {open "/proc/cpuinfo"} f]} {
+        set cores [regexp -all -line {^processor\s} [read $f]]
+        close $f
+        if {$cores > 0} {
+            if {$cores > 16} {
+                return 16
+            }
+        }
+    }
+    return $cores
+}
+
 set_app_var enable_cdc true
 set_app_var enable_cdc_save true
 
@@ -50,7 +66,8 @@ foreach config $config_list {
 }
 
 # Check CDC
-check_cdc
+set nb_cores [eval get_dispatch_value]
+check_cdc -j ${nb_cores}
 
 # Include waiver file
 set waiver_list [split $waiver_files " "]
